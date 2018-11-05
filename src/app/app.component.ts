@@ -6,5 +6,10 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-  title = 'demo-project';
+  public cards = [];
+
+  add() {
+    console.log('aaddd');
+    this.cards.push(1);
+  }
 }
