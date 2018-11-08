@@ -24,7 +24,6 @@ import { transition, style, animate, trigger } from '@angular/animations';
 })
 export class CardComponent {
   public cardState = 'back';
-  @HostBinding('@appearAnimation')
   public appearAnimate = true;
 
   @HostListener('click')

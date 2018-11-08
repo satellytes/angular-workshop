@@ -1,0 +1,17 @@
+<h1>Game</h1>
+<h2>
+  Players
+</h2>
+<span *ngFor="let player of (players$ | async)">{{player.getName()}}</span>
+
+<skipbo-pile [cards]="cards"></skipbo-pile>
+<button (click)="add()">add</button>
+
+<h2>Board</h2>
+Building Pile +
+Deck
+
+<h2>Player</h2>
+Discard Pile +
+Stock Pile +
+Hand Card

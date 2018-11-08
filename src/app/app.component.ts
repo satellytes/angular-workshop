@@ -1,15 +1,9 @@
 import { Component } from '@angular/core';
 
 @Component({
-  selector: 'app-root',
+  selector: 'skipbo-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-  public cards = [];
-
-  add() {
-    console.log('aaddd');
-    this.cards.push(1);
-  }
 }

@@ -1,0 +1,15 @@
+:host {
+  display: block;
+  width: 139px;
+  // height: 221px;
+  position: relative;
+}
+
+skipbo-card {
+  &:not(:first-child){
+    margin-top: -200px;
+  }
+  &:not(:last-child){
+    pointer-events: none;
+  }
+}
