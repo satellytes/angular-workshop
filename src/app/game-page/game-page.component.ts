@@ -3,6 +3,8 @@ import { SkipBoService } from '../game/skipbo.service';
 import { Subject, Observable } from 'rxjs';
 import { BuildingPile } from '../skipbo-core/pile/building-pile';
 import { Card } from '../skipbo-core/card';
+import { Game } from '../skipbo-core/game';
+import { Player } from '../skipbo-core/player';
 // import { Player } from 'skipbo-core';
 
 @Component({
@@ -11,6 +13,7 @@ import { Card } from '../skipbo-core/card';
   styleUrls: ['./game-page.component.scss']
 })
 export class GamePageComponent {
+  private _game: Game;
   public cards = [1];
   // public players$: Observable<Player[]>;
 
@@ -20,28 +23,37 @@ export class GamePageComponent {
     // this.skipboService.addPlayer('Player B');
 
     this.skipboService.start();
-    this.skipboService.game.buildingGroup.autoPlace(Card.One);
-    this.skipboService.game.buildingGroup.autoPlace(Card.Two);
-    this.skipboService.game.buildingGroup.autoPlace(Card.Three);
-    this.skipboService.game.buildingGroup.autoPlace(Card.One);
 
-    for (const pile of this.skipboService.buildingPiles) {
-      pile.cards.subscribe(card => {
-        console.log('card', card);
-      });
-    }
+    this._game = this.skipboService.game;
+    this._game.enableLogging();
+    this._game.createPlayer('Player A');
+    this._game.createPlayer('Player B');
+
+    this._game.start();
   }
 
-  get buildingPiles(): BuildingPile[] {
-    return this.skipboService.buildingPiles;
+  get players(): Player[] {
+    return this._game.players;
+  }
+
+  get game(): Game {
+    return this._game;
   }
 
   add() {
     this.cards.push(1);
   }
 
+  drawFromDeck() {
+    const [card] = this.game.deck.draw();
+    return card;
+  }
+
   addRandomCard() {
-    const game = this.skipboService.game;
-    game.buildingGroup.autoPlace(Card.SkipBo);
+    this._game.buildingGroup.autoPlace(Card.SkipBo);
+  }
+
+  addPlayer() {
+    this._game.createPlayer();
   }
 }

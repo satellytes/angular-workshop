@@ -133,4 +133,8 @@ export class PileGroup<T extends AbstractPile> {
     const sortedList = list.sort((a: T, b: T) => a.size - b.size);
     return sortedList[0];
   }
+
+  [Symbol.iterator]() {
+    return this._piles.values();
+  }
 }

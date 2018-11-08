@@ -6,16 +6,38 @@
 <button (click)="add()">add</button>
 
 <h2>Board</h2>
-{{ buildingPiles.length }}
+<h3>Building Piles</h3>
+<div>Deck has {{ game.deck.count }} cards. Next card to draw: {{ game.deck.peek() }}</div>
+<button (click)="lastCard = drawFromDeck()">draw</button> Last Card Drawn{{ lastCard }}
+<button (click)="game.deck.shuffle()">shuffle</button>
 
-<div *ngFor="let pile of buildingPiles">
+<h3>Building Piles</h3>
+<div *ngFor="let pile of game.buildingGroup">
   Pile: {{ pile.cards | async }}
   <hr />
 </div>
 
 <button (click)="addRandomCard()">add random card</button>
 
-Building Pile + Deck
-
 <h2>Player</h2>
-Discard Pile + Stock Pile + Hand Card
+<div *ngFor="let player of players">
+  <h3>Hand Name</h3>
+  {{ player.name }}
+
+  <h3>Hand Cards</h3>
+  Count: {{ player.hand.count }}<br />
+  Cards: {{ player.hand.cards }} <button (click)="player.fillHand()">fillHand</button>
+
+  <h3>Stock Cards</h3>
+  Count: {{ player.stock.count }}<br />
+  Top Card: {{ player.stock.top }}
+
+  <h3>Discard Pile</h3>
+  <div *ngFor="let pile of player.discardGroup">
+    Pile: {{ pile.cards | async }}
+    <hr />
+  </div>
+  <hr />
+</div>
+
+<button (click)="addPlayer()">add player</button> Discard Pile + Stock Pile + Hand Card

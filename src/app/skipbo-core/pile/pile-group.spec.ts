@@ -16,7 +16,7 @@ let pile2: SimplePileImpl = new SimplePileImpl();
 // create an array of cards from 1 - 12
 const createFullPile = () => Array.from(Array(12)).map((value, index) => index + 1);
 
-fdescribe('Pile Group', () => {
+describe('Pile Group', () => {
   beforeEach(() => {
     group = new PileGroup();
     group.add((pile1 = new SimplePileImpl()));

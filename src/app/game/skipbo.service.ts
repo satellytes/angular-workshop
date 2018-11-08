@@ -17,10 +17,6 @@ export class SkipBoService {
     return this._game;
   }
 
-  get buildingPiles() {
-    return this._game.buildingGroup.getPiles();
-  }
-
   addPlayer(name: string): void {
     //   const player = this._game.createPlayer(name);
     //   this.playerSubject.next(this._game.getPlayers());
