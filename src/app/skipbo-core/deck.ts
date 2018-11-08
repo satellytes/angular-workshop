@@ -34,9 +34,13 @@ export class Deck {
 
     const cards = [];
     while (cards.length < count) {
-      cards.push(this._cards.pop());
+      cards.push(this.drawSingleCard());
     }
     return cards;
+  }
+
+  drawSingleCard() {
+    return this._cards.pop();
   }
 
   get count() {

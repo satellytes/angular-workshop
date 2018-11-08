@@ -1,0 +1,23 @@
+<h2>{{ player.name }}</h2>
+<div class="action">
+  <h3>Actions</h3>
+  <button (click)="player.placeStockCard()">placeStockCard</button>
+  <button (click)="player.placeHandCard()">placeHandCard</button>
+  <button (click)="player.placeDiscardCard()">placeDiscardCard</button>
+  <button (click)="player.discardHandCard()">complete</button>
+</div>
+
+<div class='cards'>
+    <div class='stock'>
+      Remaining: {{player.stock.count}}
+      <skipbo-card [card]="player.stock.top"></skipbo-card>
+    </div>
+
+    <div class='other'>
+      <div class='hand'>
+        <skipbo-card *ngFor="let card of player.hand.cards" [card]="card"></skipbo-card>
+      </div>
+      <skipbo-pilegroup [group]="player.discardGroup"></skipbo-pilegroup>
+    </div>
+
+</div>

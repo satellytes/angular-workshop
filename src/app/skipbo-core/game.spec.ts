@@ -1,5 +1,5 @@
 import { BuildingPile } from './pile/building-pile';
-import { Game } from './game';
+import { Game, MAX_PLAYERS } from './game';
 import { PileGroup } from './pile/pile-group';
 import { Player } from './player';
 import { Card } from './card';
@@ -64,6 +64,22 @@ describe('Game', () => {
       expect(player1.stock.count).toBe(30);
       expect(player2.stock.count).toBe(30);
     });
+
+    it('start a game will give only 20 stock cards when playing with 5 or more players', () => {
+      // create 4 additional players
+      game.createPlayer();
+      game.createPlayer();
+      game.createPlayer();
+      game.createPlayer();
+
+      // start and therefore deal stock cards to all players
+      game.start();
+
+      expect(player1.stock.count).toBe(20);
+      expect(player2.stock.count).toBe(20);
+
+      console.log(game.deck.count);
+    });
   });
 
   it('has completed cards', () => {
@@ -108,6 +124,22 @@ describe('Game', () => {
       expect(player instanceof Player).toBeTruthy();
     });
 
+    it('can create the maximum of players', () => {
+      for(let i = 0; i < MAX_PLAYERS; i++) {
+        game.createPlayer();
+      }
+      expect(game.players.length).toBe(MAX_PLAYERS);
+    });
+
+    it('error when creating more than the maximum of players', () => {
+      for(let i = 0; i < MAX_PLAYERS; i++) {
+        game.createPlayer();
+      }
+      expect(() => {
+        game.createPlayer();
+      }).toThrowError('Maximum of 6 players reached');
+    });
+
     it('collects created players', () => {
       game.createPlayer('Player 1');
       game.createPlayer('Player 2');
@@ -120,7 +152,7 @@ describe('Game', () => {
       expect(game.players.length).toBe(0);
     });
 
-    it('autoamtically name a new player if no name is given', () => {
+    it('automatically name a new player if no name is given', () => {
       game.createPlayer('Some Player');
       game.createPlayer('Other Player');
       const player = game.createPlayer();
@@ -139,9 +171,14 @@ describe('Game', () => {
       game.start();
     });
 
-    it('throws error for current player if not started', () => {
+    it('returns null if game not started', () => {
       game = new Game();
-      expect(() => game.currentPlayer).toThrowError('Game did not start yet');
+      player1 = game.createPlayer('Player1');
+      expect(game.currentPlayer).toBe(null);
+    });
+
+    it('throws error if current player is not finished', () => {
+      expect(() => game.nextPlayer()).toThrowError('Player not finished');
     });
 
     it('returns a player', () => {
@@ -150,21 +187,20 @@ describe('Game', () => {
 
     it('returns next player', () => {
       expect(game.currentPlayer).toBe(player1);
+      game.currentPlayer.discardHandCard();
 
       game.nextPlayer(); // Player 2
       expect(game.currentPlayer).toBe(player2);
-
-      game.nextPlayer(); // Player 1
-      expect(game.currentPlayer).toBe(player1);
     });
 
     it('has a turn counter', () => {
-      game.nextPlayer();
-      game.nextPlayer();
-      game.nextPlayer();
+      game.currentPlayer.discardHandCard();
       game.nextPlayer();
 
-      expect(game.turnId).toBe(4);
+      game.currentPlayer.discardHandCard();
+      game.nextPlayer();
+
+      expect(game.turnId).toBe(3);
     });
   });
 });

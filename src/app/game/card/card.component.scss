@@ -1,19 +1,28 @@
 :host {
   display: block;
   perspective: 1000px;
+  // max-width: 139px;
+}
 
-  width: 139px;
-  height: 221px;
+.wrapper {
+  height: 0;
+  padding-bottom: percentage(221/139);
+  position: relative;
 }
 
 .card {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+
   transform-style: preserve-3d;
   transition: transform 1s;
-  width: 139px;
-  height: 221px;
 }
 
-.card__back, .card__front {
+.card__back,
+.card__front {
   backface-visibility: hidden;
   position: absolute;
   top: 0;
@@ -23,12 +32,69 @@
 }
 
 .card__back {
-  background-image: url("/assets/images/card-back.png");
+  background-image: url('/assets/images/card-back.png');
+  background-size: cover;
   transform: rotateY(180deg);
 }
 
 .card__front {
-  background-image: url("/assets/images/card-01.png");
+  background-size: cover;
   z-index: 2;
-	transform: rotateY(0deg);
+  transform: rotateY(0deg);
+}
+
+.card--skipbo {
+  background-image: url('/assets/images/card-skipbo.png');
+}
+
+.card--empty {
+  background-image: url('/assets/images/card-empty.png');
+}
+
+.card--1 {
+  background-image: url('/assets/images/card-blue.png');
+}
+.card--2 {
+  background-image: url('/assets/images/card-blue.png');
+}
+.card--3 {
+  background-image: url('/assets/images/card-blue.png');
+}
+.card--4 {
+  background-image: url('/assets/images/card-blue.png');
+}
+.card--5 {
+  background-image: url('/assets/images/card-green.png');
+}
+.card--6 {
+  background-image: url('/assets/images/card-green.png');
+}
+.card--7 {
+  background-image: url('/assets/images/card-green.png');
+}
+.card--8 {
+  background-image: url('/assets/images/card-red.png');
+}
+.card--9 {
+  background-image: url('/assets/images/card-red.png');
+}
+.card--10 {
+  background-image: url('/assets/images/card-red.png');
+}
+.card--11 {
+  background-image: url('/assets/images/card-red.png');
+}
+.card--12 {
+  background-image: url('/assets/images/card-red.png');
+}
+
+.cardnumber {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  font-size: 40px;
+  color: #ffffff;
 }

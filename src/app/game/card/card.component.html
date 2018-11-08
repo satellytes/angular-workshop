@@ -1,6 +1,14 @@
-<div class="card-holder" [@appearAnimation]="appearAnimate">
-  <div class="card" [@flipAnimation]="cardState" >
-    <div class="card__back"></div>
-    <div class="card__front"></div>  
-  </div>
+<div class="wrapper">
+  <div class="card-holder" [@appearAnimation]="appearAnimate">
+      <div class="card" [@flipAnimation]="cardState" >
+        <div class="card__back"></div>
+        <div class="card__front card--{{cardName}}">
+          <div class='cardnumber' *ngIf="card > 0">
+              {{card}}
+          </div>
+        </div>
+      </div>
+    </div>
+
+
 </div>

@@ -1,2 +1,7 @@
-<skipbo-card *ngFor="let card of cards"></skipbo-card>
+<div *ngIf="cards.length > 0">
+  <skipbo-card *ngFor="let card of cards" [card]="card"></skipbo-card>
+</div>
 
+<div *ngIf="cards.length == 0">
+  <skipbo-card></skipbo-card>
+</div>

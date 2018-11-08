@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { Observable, Subject, BehaviorSubject } from 'rxjs';
 import { Game } from '../skipbo-core/game';
+import { Player } from '../skipbo-core/player';
 import { getFullTestDeck } from '../skipbo-core/testdeck';
 
 @Injectable()
@@ -10,18 +10,21 @@ export class SkipBoService {
   // public player$: Observable<Player[]>;
 
   constructor() {
-    this._game = new Game(getFullTestDeck());
-    // this.player$ = this.playerSubject.asObservable();
+    this._game = new Game();
+    // this._game = new Game(getFullTestDeck());
+    this._game.enableLogging();
   }
 
   get game(): Game {
     return this._game;
   }
 
-  addPlayer(name: string): void {
-    //   const player = this._game.createPlayer(name);
-    //   this.playerSubject.next(this._game.getPlayers());
-    //   return player;
+  addPlayer(name: string = null): void {
+    this._game.createPlayer(name);
+  }
+
+  get players(): Player[] {
+    return this._game.players;
   }
 
   start() {

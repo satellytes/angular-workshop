@@ -1,4 +1,18 @@
 <h1>Welcome to Skipbo</h1>
-<p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Consequatur distinctio voluptatem minima totam voluptas tempora porro sapiente ratione veritatis similique suscipit cum deleniti deserunt necessitatibus fugiat, molestiae numquam nemo fugit.</p>
+<p>
+  Lorem ipsum dolor sit amet consectetur adipisicing elit. Consequatur distinctio voluptatem minima totam voluptas
+  tempora porro sapiente ratione veritatis similique suscipit cum deleniti deserunt necessitatibus fugiat, molestiae
+  numquam nemo fugit.
+</p>
 
-<button routerLink="/game">start</button>
+<h2>Players available</h2>
+<mat-list>
+  <mat-list-item *ngFor="let player of players">{{ player }}</mat-list-item>
+</mat-list>
+
+<div class="example-container">
+  <mat-form-field> <input matInput placeholder="Player Name" /> </mat-form-field>
+  <button mat-raised-button [disabled]="players.length >= 6" (click)="addPlayer()">Add New Player</button>
+</div>
+
+<button mat-raised-button [disabled]="players.length < 2" color="accent" routerLink="/game">Start</button>

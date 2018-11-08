@@ -6,5 +6,5 @@ import { Component, OnInit, Input } from '@angular/core';
   styleUrls: ['./pile.component.scss']
 })
 export class PileComponent {
-  @Input() cards = [1];
+  @Input() cards = [];
 }

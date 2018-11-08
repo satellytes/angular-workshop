@@ -19,15 +19,17 @@ export class GamePageComponent {
 
   constructor(private skipboService: SkipBoService) {
     // this.players$ = this.skipboService.player$;
-    this.skipboService.addPlayer('Player A');
-    // this.skipboService.addPlayer('Player B');
+    if (this.skipboService.players.length === 0) {
+      this.skipboService.addPlayer('Player A');
+      this.skipboService.addPlayer('Player B');
+    }
 
-    this.skipboService.start();
+    // this.skipboService.start();
 
     this._game = this.skipboService.game;
     this._game.enableLogging();
-    this._game.createPlayer('Player A');
-    this._game.createPlayer('Player B');
+    // this._game.createPlayer('Player A');
+    // this._game.createPlayer('Player B');
 
     this._game.start();
   }

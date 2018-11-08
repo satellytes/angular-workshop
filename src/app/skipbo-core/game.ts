@@ -1,23 +1,32 @@
+import { Card, generateSkipBoCards } from './card';
+import { Deck } from './deck';
+import { DoublyLinkedList, DoublyLinkedListNode } from './doubly-linked-list';
+import { logger } from './logger';
 import { BuildingPile } from './pile/building-pile';
 import { PileGroup } from './pile/pile-group';
 import { Player } from './player';
-import { Deck } from './deck';
-import { generateSkipBoCards, Card } from './card';
-import { logger } from './logger';
-import { DoublyLinkedListNode, DoublyLinkedList } from './doubly-linked-list';
 import { assert } from './utils';
+import { Observable, of, Subject, merge } from 'rxjs';
+import { map, mergeMap, switchMap, filter, first } from 'rxjs/operators';
 
-export const STOCK_CARD_COUNT = 30;
+export const STOCK_CARD_COUNT_SMALL_GAME = 30;
+export const STOCK_CARD_COUNT_LARGE_GAME = 20;
+
+export const MIN_PLAYERS = 2;
+export const MAX_PLAYERS = 6;
 
 export class Game {
   public buildingGroup: PileGroup<BuildingPile>;
   private _completedCards: Card[] = [];
   private _players: DoublyLinkedList<Player> = new DoublyLinkedList();
+
   private _deck: Deck;
   private _started: Boolean = false;
 
   private _currentPlayer: DoublyLinkedListNode<Player>;
   private _turnCounter = 0;
+
+  private readonly _gameOver: Subject<any> = new Subject();
 
   constructor(cards: Card[] = null) {
     this._deck = new Deck(cards || generateSkipBoCards());
@@ -26,6 +35,9 @@ export class Game {
 
   get completedCards(): Card[] {
     return [...this._completedCards];
+  }
+  get started() {
+    return this._started;
   }
 
   addCompletedCards(...cards: Card[]) {
@@ -51,12 +63,11 @@ export class Game {
   }
 
   createPlayer(name: string = null) {
+    assert(this._players.size() < MAX_PLAYERS, `Maximum of ${MAX_PLAYERS} players reached`);
+
     const player = new Player(name || `Player ${this.players.length + 1}`, this);
     logger.info(`Added player '${player}'`);
     this._players.add(player);
-
-    // this._turn.add(player);
-
     return player;
   }
 
@@ -64,39 +75,89 @@ export class Game {
     logger.enable();
   }
 
+  get winnerChanges() {
+    return merge(...this.players.map(player => player.winnerChange));
+  }
+
+  susbcribeForWinner() {
+    this._gameOver.subscribe(() => {
+      console.log('game over, winner found');
+    });
+
+    this.winnerChanges
+      .pipe(first())
+      .subscribe(this._gameOver);
+
+    // of(this.players)
+    // .pipe(
+    //   mergeMap(player => player), // transform tghe array into a stream of its items
+    //   mergeMap(player => {
+    //     // ensure that only real winners (true) are coming in
+    //     return player.winner
+    //       .pipe(filter(result => result === true));
+    //   }, player => player), // look for the winner  stream
+    //   first()
+    // )
+    // .subscribe((player: Player) => {
+    //   console.log('player won', player);
+    //   this.winner = player;
+    //   // this.gameOver();
+    // });
+  }
+
+
+
   start() {
     logger.info('Start Game');
-    assert(this.players.length > 1, 'You need at least two players to play');
+
+    assert(this.players.length >= MIN_PLAYERS, `You need at least ${MIN_PLAYERS} players to play`);
     assert(this._started === false, 'The game is already running');
 
+    this.susbcribeForWinner();
     this._started = true;
-    this._currentPlayer = this._players.head;
+    this.players[0].checkWinner();
 
-    // this.deck.shuffle();
+    this.deck.shuffle();
     this.dealStockCards();
+    this.nextPlayer();
   }
 
   getStockCardCount() {
-    return STOCK_CARD_COUNT;
+    if (this._players.size() < 5) {
+      return STOCK_CARD_COUNT_SMALL_GAME;
+    }
+
+    return STOCK_CARD_COUNT_LARGE_GAME;
   }
 
   get currentPlayer(): Player {
-    assert(this._started, 'Game did not start yet');
+    if (!this._started || !this._currentPlayer) {
+      return null;
+    }
+
+    // assert(this._started, 'Game did not start yet');
     return this._currentPlayer.value;
   }
 
   nextPlayer() {
     assert(this._started, 'Game did not start yet');
-    // assert(this._currentPlayer.done, 'Current Player is not done yet');
 
-    if (this._currentPlayer.next) {
-      this._currentPlayer = this._currentPlayer.next;
-    } else {
+    if (this.currentPlayer) {
+      assert(this.currentPlayer.playing === false, 'Player not finished');
+    }
+
+    if (!this._currentPlayer) {
       this._currentPlayer = this._players.head;
+    } else {
+      if (this._currentPlayer.next) {
+        this._currentPlayer = this._currentPlayer.next;
+      } else {
+        this._currentPlayer = this._players.head;
+      }
     }
 
     this._turnCounter++;
-
+    this.currentPlayer.takeTurn();
     return this.currentPlayer;
   }
 

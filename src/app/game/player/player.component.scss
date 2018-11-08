@@ -1,0 +1,27 @@
+:host {
+  display: block;
+}
+
+.hand {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: 200px auto;
+  grid-template-rows: auto;
+}
+
+.stock {
+  grid-row-end: span 2;
+}
+
+.discard {
+  grid-row-start: 1;
+  grid-column-start: 2;
+}
+
+.hand {
+  grid-column-start: 2;
+}

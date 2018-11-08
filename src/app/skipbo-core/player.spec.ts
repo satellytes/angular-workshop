@@ -109,7 +109,7 @@ describe('Player', () => {
     });
 
     it('can discard a hand card', () => {
-      player.fillHand();
+      player.takeTurn();
 
       const handCardsBefore = player.hand.cards;
       player.discardHandCard(handCardsBefore[0]);
@@ -119,7 +119,7 @@ describe('Player', () => {
     });
 
     it('can discard a hand card to a specific discard pile', () => {
-      player.fillHand();
+      player.takeTurn();
 
       const firstDiscardPile = player.discardGroup.getPiles()[0];
       player.discardHandCard(player.hand.cards[0], firstDiscardPile);
@@ -129,7 +129,7 @@ describe('Player', () => {
 
     it('can auto place the first hand card that can be placed', () => {
       // [Card.SkipBo, Card.One, Card.Two, Card.Three, Card.Four]
-      player.fillHand();
+      player.takeTurn();
       player.placeHandCard();
 
       // SKipBo will be placed
@@ -138,7 +138,7 @@ describe('Player', () => {
 
     it('can place a specific hand card', () => {
       // [Card.SkipBo, Card.One, Card.Two, Card.Three, Card.Four]
-      player.fillHand();
+      player.takeTurn();
       player.placeHandCard(Card.One);
 
       expect(player.hand.cards).toEqual([Card.SkipBo, Card.Two, Card.Three, Card.Four]);
@@ -146,7 +146,11 @@ describe('Player', () => {
 
     it('Error when you have no hand cards', () => {
       // [Card.SkipBo, Card.One, Card.Two, Card.Three, Card.Four]
-      // player.fillHand();
+      // do nothing to get an empty hand
+
+      player.fillHand = () => {};
+      player.takeTurn();
+
       expect(() => {
         player.placeHandCard(Card.One);
       }).toThrowError('You have no hand cards left');
@@ -155,7 +159,7 @@ describe('Player', () => {
     it('Error when you try to automatically place a card in a specified building pile', () => {
       // [Card.SkipBo, Card.One, Card.Two, Card.Three, Card.Four]
 
-      player.fillHand();
+      player.takeTurn();
       const firstPile = game.buildingGroup.getPiles()[0];
 
       expect(() => {
@@ -167,7 +171,7 @@ describe('Player', () => {
       game = new Game([Card.Twelve, Card.Twelve, Card.Twelve, Card.Twelve, Card.Twelve]);
       player = createPlayer('Player 1', game);
 
-      player.fillHand();
+      player.takeTurn();
       const firstPile = game.buildingGroup.getPiles()[0];
 
       expect(() => {
@@ -251,12 +255,12 @@ describe('Player', () => {
     });
 
     it('can play a discard card', () => {
-      player.fillHand();
-      const hand = player.hand.cards;
+      player.takeTurn();
       player.placeDiscardCard(Card.One);
     });
 
     it('can auto play a card to discard', () => {
+      player.takeTurn();
       player.placeDiscardCard();
       expect(firstDiscardPile.getCardValues()).toEqual([Card.Twelve]);
       expect(firstBuildingPile.getCardValues()).toEqual([Card.One]);
@@ -264,6 +268,7 @@ describe('Player', () => {
 
     it('error when there are no discarded carcds', () => {
       const player2 = game.createPlayer('Player 1');
+      player2.takeTurn();
 
       expect(() => {
         player2.placeDiscardCard(Card.One);
@@ -272,14 +277,132 @@ describe('Player', () => {
 
     it(`error when card can't be drawn from the discard pile`, () => {
       expect(() => {
+        player.takeTurn();
         player.placeDiscardCard(Card.Four);
       }).toThrowError(`[Discard Pile] Card 4 can't be drawn from any pile!`);
     });
 
     it('error when nothing can be placed', () => {
+      player.takeTurn();
       expect(() => {
         player.placeDiscardCard(Card.Twelve);
       }).toThrowError(`[Discard Pile] Card 12 can't be placed!`);
+    });
+  });
+
+  fdescribe('Turn', () => {
+    beforeEach(() => {
+      game = new Game();
+      player = game.createPlayer('Player 1');
+    });
+
+
+    it('player is not a winner when game never started', () => {
+      expect(player.isWinner()).toBe(false);
+    });
+
+    it('player is winner when all stock cards are played', () => {
+      // second player so wen can start playing
+      game.createPlayer('Player 2');
+      game.start();
+
+      // remove all stock cards
+      player.stock.draw(30);
+      expect(player.isWinner()).toBe(true);
+    });
+
+
+    it('notify about winning after placing the last stock card', () => {
+      game = new Game(getFullTestDeck());
+      // second player so wen can start playing
+      player = game.createPlayer('Player 1');
+
+      let playerHasWon = false;
+      player.winner.subscribe(() => {
+        playerHasWon = true;
+      });
+
+      game.createPlayer('Player 2');
+      game.start();
+
+      // remove all stock cards
+      player.takeTurn();
+      player.stock.draw(29);
+      player.placeStockCard();
+
+      expect(playerHasWon).toBe(true);
+    });
+
+    it('can start a turn', () => {
+      expect(player.takeTurn).toBeTruthy();
+    });
+
+    it('playing is true when turn is active', () => {
+      expect(player.playing).toBeFalsy();
+      player.takeTurn();
+      expect(player.playing).toBeTruthy();
+    });
+
+    it('complete turn by discarding a card', () => {
+      player.takeTurn();
+      player.discardHandCard();
+      expect(player.playing).toBeFalsy();
+    });
+
+    it('fills hand when taking the turn', () => {
+      const fillSpy = spyOn(player, 'fillHand').and.callThrough();
+      player.takeTurn();
+      expect(fillSpy).toHaveBeenCalled();
+    });
+
+    it('refills hand when empty after placing a hand card', () => {
+      // draw only skipbo cards
+      game.deck.drawSingleCard = () => Card.SkipBo;
+
+      player.takeTurn();
+
+      player.placeHandCard();
+      player.placeHandCard();
+      player.placeHandCard();
+      player.placeHandCard();
+
+      const fillSpy = spyOn(player, 'fillHand').and.callThrough();
+      player.placeHandCard();
+      expect(fillSpy).toHaveBeenCalled();
+    });
+
+    it('never refills when discard a hand csard', () => {
+      // draw only skipbo cards
+      game.deck.drawSingleCard = () => Card.SkipBo;
+
+      player.takeTurn();
+
+      player.placeHandCard();
+      player.placeHandCard();
+      player.placeHandCard();
+      player.placeHandCard();
+
+      const fillSpy = spyOn(player, 'fillHand').and.callThrough();
+      player.discardHandCard();
+      expect(fillSpy).not.toHaveBeenCalled();
+    });
+
+    it('error when trying to place stock card while not being the active player', () => {
+      expect(() => {
+        player.placeStockCard();
+      }).toThrowError(`Can't play if it's not your turn`);
+    });
+
+    it('error when trying to place hand card while not being the active player', () => {
+      expect(() => {
+        player.placeHandCard();
+      }).toThrowError(`Can't play if it's not your turn`);
+    });
+
+    it('error when trying to place discard card while not being the active player', () => {
+      expect(() => {
+        player.placeDiscardCard();
+      }).toThrowError(`Can't play if it's not your turn`);
     });
   });
 });
