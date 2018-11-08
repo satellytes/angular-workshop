@@ -1,7 +1,6 @@
 import { Card } from '../card';
 import { assert } from '../utils';
 import { AbstractPile } from './pile-abstract';
-import { runInThisContext } from 'vm';
 
 export enum PileRole {
   BUILDING = 1,

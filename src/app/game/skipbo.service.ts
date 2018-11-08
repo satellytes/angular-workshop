@@ -1,15 +1,24 @@
 import { Injectable } from '@angular/core';
 import { Observable, Subject, BehaviorSubject } from 'rxjs';
+import { Game } from '../skipbo-core/game';
 
 @Injectable()
 export class SkipBoService {
-  // private _game: Game;
+  private _game: Game;
   // public playerSubject: Subject<Player[]> = new BehaviorSubject([]);
   // public player$: Observable<Player[]>;
 
   constructor() {
-    // this._game = new Game();
+    this._game = new Game();
     // this.player$ = this.playerSubject.asObservable();
+  }
+
+  get game(): Game {
+    return this._game;
+  }
+
+  get buildingPiles() {
+    return this._game.buildingGroup.getPiles();
   }
 
   addPlayer(name: string): void {

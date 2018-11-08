@@ -1,17 +1,21 @@
 <?xml version="1.0"?>
-<testsuite name="HeadlessChrome 0.0.0 (Mac OS X 10.13.6)" package="" timestamp="2018-11-08T12:13:05" id="0" hostname="Georgioss-MacBook-Pro-2.local" tests="48" errors="0" failures="0" time="0.007">
+<testsuite name="HeadlessChrome 0.0.0 (Mac OS X 10.13.6)" package="" timestamp="2018-11-08T12:26:41" id="0" hostname="Georgioss-MacBook-Pro-2.local" tests="52" errors="0" failures="0" time="0.009">
   <properties>
     <property name="browser.fullName" value="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/70.0.3538.77 Safari/537.36"/>
   </properties>
-  <testcase name="Pile Group building group throws error when trying to auto-place wrong card" time="0.002" classname="HeadlessChrome_0_0_0_(Mac_OS_X_10_13_6).Pile Group"/>
-  <testcase name="Pile Group building group clears a pile without touching the others" time="0.002" classname="HeadlessChrome_0_0_0_(Mac_OS_X_10_13_6).Pile Group"/>
-  <testcase name="Pile Group building group give top cards from all piles" time="0" classname="HeadlessChrome_0_0_0_(Mac_OS_X_10_13_6).Pile Group"/>
-  <testcase name="Pile Group building group display card as ascii" time="0.001" classname="HeadlessChrome_0_0_0_(Mac_OS_X_10_13_6).Pile Group"/>
+  <testcase name="Game has a building pile group" time="0.002" classname="HeadlessChrome_0_0_0_(Mac_OS_X_10_13_6).Game"/>
+  <testcase name="Game has four building piles" time="0" classname="HeadlessChrome_0_0_0_(Mac_OS_X_10_13_6).Game"/>
+  <testcase name="Pile Group building group throws error when trying to auto-place wrong card" time="0.001" classname="HeadlessChrome_0_0_0_(Mac_OS_X_10_13_6).Pile Group"/>
+  <testcase name="Pile Group building group clears a pile without touching the others" time="0.001" classname="HeadlessChrome_0_0_0_(Mac_OS_X_10_13_6).Pile Group"/>
+  <testcase name="Pile Group building group give top cards from all piles" time="0.001" classname="HeadlessChrome_0_0_0_(Mac_OS_X_10_13_6).Pile Group"/>
+  <testcase name="Pile Group building group display card as ascii" time="0" classname="HeadlessChrome_0_0_0_(Mac_OS_X_10_13_6).Pile Group"/>
+  <testcase name="Pile Group returns all pile instance" time="0.001" classname="HeadlessChrome_0_0_0_(Mac_OS_X_10_13_6).Pile Group"/>
+  <testcase name="Pile Group return pile count" time="0.002" classname="HeadlessChrome_0_0_0_(Mac_OS_X_10_13_6).Pile Group"/>
   <testcase name="Pile Group get possible piles" time="0" classname="HeadlessChrome_0_0_0_(Mac_OS_X_10_13_6).Pile Group"/>
   <testcase name="Pile Group has zero piles for impossible card to build" time="0" classname="HeadlessChrome_0_0_0_(Mac_OS_X_10_13_6).Pile Group"/>
-  <testcase name="Pile Group can auto place on candidate" time="0" classname="HeadlessChrome_0_0_0_(Mac_OS_X_10_13_6).Pile Group"/>
+  <testcase name="Pile Group can auto place on candidate" time="0.001" classname="HeadlessChrome_0_0_0_(Mac_OS_X_10_13_6).Pile Group"/>
   <testcase name="Pile Group can auto place wild card" time="0" classname="HeadlessChrome_0_0_0_(Mac_OS_X_10_13_6).Pile Group"/>
-  <testcase name="Pile Group can auto place multiple cars" time="0.002" classname="HeadlessChrome_0_0_0_(Mac_OS_X_10_13_6).Pile Group"/>
+  <testcase name="Pile Group can auto place multiple cars" time="0" classname="HeadlessChrome_0_0_0_(Mac_OS_X_10_13_6).Pile Group"/>
   <testcase name="AppComponent should create the app" time="0" classname="HeadlessChrome_0_0_0_(Mac_OS_X_10_13_6).AppComponent">
     <skipped/>
   </testcase>

@@ -83,6 +83,14 @@ fdescribe('Pile Group', () => {
     });
   });
 
+  it('returns all pile instance', () => {
+    expect(group.getPiles().length).toBe(2);
+  });
+
+  it('return pile count', () => {
+    expect(group.count).toBe(2);
+  });
+
   it('get possible piles', () => {
     const piles = group.getPileCandidates(Card.One);
     expect(piles.length).toBe(2);

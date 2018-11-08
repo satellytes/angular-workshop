@@ -15,6 +15,14 @@ export class PileGroup<T extends AbstractPile> {
     this._placeStrategy = placeStrategy;
   }
 
+  getPiles(): T[] {
+    return this._piles;
+  }
+
+  get count() {
+    return this._piles.length;
+  }
+
   add(pile: T) {
     this._piles.push(pile);
   }
