@@ -29,8 +29,8 @@ export class Deck {
   }
 
   draw(count: number = 1): Card[] {
-    assert(count > 0, `Can't draw less than one card`);
-    assert(this.canDraw(count), `Deck not big enough (${this.count}), can\'t draw (${count}) card`);
+    assert(count > 0, `[Stock] Can't draw less than one card`);
+    assert(this.canDraw(count), `[Stock] Deck not big enough (${this.count}), can\'t draw (${count}) card`);
 
     const cards = [];
     while (cards.length < count) {

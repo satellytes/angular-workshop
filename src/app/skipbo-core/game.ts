@@ -4,14 +4,20 @@ import { Player } from './player';
 import { Deck } from './deck';
 import { generateSkipBoCards, Card } from './card';
 import { logger } from './logger';
+import { DoublyLinkedListNode, DoublyLinkedList } from './doubly-linked-list';
+import { assert } from './utils';
 
 export const STOCK_CARD_COUNT = 30;
 
 export class Game {
   public buildingGroup: PileGroup<BuildingPile>;
   private _completedCards: Card[] = [];
-  private _players: Player[] = [];
+  private _players: DoublyLinkedList<Player> = new DoublyLinkedList();
   private _deck: Deck;
+  private _started: Boolean = false;
+
+  private _currentPlayer: DoublyLinkedListNode<Player>;
+  private _turnCounter = 0;
 
   constructor(cards: Card[] = null) {
     this._deck = new Deck(cards || generateSkipBoCards());
@@ -25,6 +31,7 @@ export class Game {
   addCompletedCards(...cards: Card[]) {
     this._completedCards = this._completedCards.concat(cards);
   }
+
   mergeCompletedCards() {
     logger.info('Merging completed cards back into the deck');
 
@@ -46,7 +53,7 @@ export class Game {
   createPlayer(name: string = null) {
     const player = new Player(name || `Player ${this.players.length + 1}`, this);
     logger.info(`Added player '${player}'`);
-    this._players.push(player);
+    this._players.add(player);
 
     // this._turn.add(player);
 
@@ -59,12 +66,38 @@ export class Game {
 
   start() {
     logger.info('Start Game');
-    this.deck.shuffle();
+    assert(this.players.length > 1, 'You need at least two players to play');
+    assert(this._started === false, 'The game is already running');
+
+    this._started = true;
+    this._currentPlayer = this._players.head;
+
+    // this.deck.shuffle();
     this.dealStockCards();
   }
 
   getStockCardCount() {
     return STOCK_CARD_COUNT;
+  }
+
+  get currentPlayer(): Player {
+    assert(this._started, 'Game did not start yet');
+    return this._currentPlayer.value;
+  }
+
+  nextPlayer() {
+    assert(this._started, 'Game did not start yet');
+    // assert(this._currentPlayer.done, 'Current Player is not done yet');
+
+    if (this._currentPlayer.next) {
+      this._currentPlayer = this._currentPlayer.next;
+    } else {
+      this._currentPlayer = this._players.head;
+    }
+
+    this._turnCounter++;
+
+    return this.currentPlayer;
   }
 
   dealStockCards() {
@@ -92,6 +125,10 @@ export class Game {
   }
 
   get players() {
-    return [...this._players];
+    return Array.from(this._players.values());
+  }
+
+  get turnId() {
+    return this._turnCounter;
   }
 }

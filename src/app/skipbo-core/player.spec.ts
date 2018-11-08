@@ -2,11 +2,13 @@ import { Player, HAND_CARD_COUNT } from './player';
 import { Game } from './game';
 import { getFullTestDeck } from './testdeck';
 import { Card } from './card';
+import { BuildingPile } from './pile/building-pile';
 
 let player: Player;
+let game: Game;
 
-const createPlayer = (name, game: Game = null) => {
-  return new Player(name, game);
+const createPlayer = (name, givenGame: Game = null) => {
+  return new Player(name, givenGame);
 };
 
 describe('Player', () => {
@@ -38,166 +40,246 @@ describe('Player', () => {
     expect(player.toString()).toEqual('Player 1');
   });
 
-  describe('Playing', () => {
-    let player1: Player;
-    let player2: Player;
+  describe('Hand Cards', () => {
     let game: Game;
 
+    // our deck should have skipbo at the top
+    const testset = () =>
+      [
+        Card.SkipBo,
+        Card.One,
+        Card.Two,
+        Card.Three,
+        Card.Four,
+        Card.Four,
+        Card.Four,
+        Card.Four,
+        Card.Four,
+        Card.Four
+      ].reverse();
+
     beforeEach(() => {
-      game = new Game(getFullTestDeck());
-      player1 = createPlayer('Player 1', game);
-      player2 = createPlayer('Player 2', game);
+      game = new Game(testset());
+      player = createPlayer('Player 1', game);
     });
 
     it('has reference to game', () => {
-      expect(player1.game).toBe(game);
+      expect(player.game).toBe(game);
     });
 
     it('fills up hand from deck', () => {
-      player1.fillHand();
+      game = new Game(testset());
+      player = createPlayer('Player 1', game);
+      player.fillHand();
 
-      expect(player1.hand.cards.length).toBe(HAND_CARD_COUNT);
-      expect(player1.hand.cards).toEqual([Card.Five, Card.Ten, Card.SkipBo, Card.Ten, Card.Ten]);
+      expect(player.hand.cards.length).toBe(HAND_CARD_COUNT);
+      expect(player.hand.cards).toEqual([Card.SkipBo, Card.One, Card.Two, Card.Three, Card.Four]);
     });
 
     it('fills up only difference', () => {
-      player1.fillHand();
+      player.fillHand();
 
-      player1.hand.draw(Card.SkipBo);
-      player1.hand.draw(Card.Five);
+      player.hand.draw(Card.SkipBo);
+      player.hand.draw(Card.One);
 
-      expect(player1.hand.count).toBe(3);
+      expect(player.hand.count).toBe(3);
 
-      player1.fillHand();
+      player.fillHand();
 
-      expect(player1.hand.cards.length).toBe(HAND_CARD_COUNT);
-      expect(player1.hand.cards).toEqual([Card.Ten, Card.Ten, Card.Ten, Card.Twelve, Card.SkipBo]);
+      expect(player.hand.cards.length).toBe(HAND_CARD_COUNT);
+      expect(player.hand.cards).toEqual([Card.Two, Card.Three, Card.Four, Card.Four, Card.Four]);
+    });
+
+    it('multiple fills are ignore', () => {
+      player.fillHand();
+      player.fillHand();
+      expect(player.hand.cards.length).toBe(HAND_CARD_COUNT);
     });
 
     it('fills will trigger a merge of completed cards', () => {
       game = new Game([]);
-      player1 = createPlayer('Player', game);
+      player = createPlayer('Player', game);
 
       const spyMerge = spyOn(game, 'mergeCompletedCards').and.callThrough();
 
       game.addCompletedCards(Card.One, Card.One, Card.One, Card.One, Card.One);
-      player1.fillHand();
+      player.fillHand();
 
       expect(spyMerge).toHaveBeenCalled();
     });
+
+    it('can discard a hand card', () => {
+      player.fillHand();
+
+      const handCardsBefore = player.hand.cards;
+      player.discardHandCard(handCardsBefore[0]);
+
+      const handCardsAfter = player.hand.cards;
+      expect(handCardsBefore.length - 1).toBe(handCardsAfter.length);
+    });
+
+    it('can discard a hand card to a specific discard pile', () => {
+      player.fillHand();
+
+      const firstDiscardPile = player.discardGroup.getPiles()[0];
+      player.discardHandCard(player.hand.cards[0], firstDiscardPile);
+
+      expect(firstDiscardPile.getCardValues().length).toBe(1);
+    });
+
+    it('can auto place the first hand card that can be placed', () => {
+      // [Card.SkipBo, Card.One, Card.Two, Card.Three, Card.Four]
+      player.fillHand();
+      player.placeHandCard();
+
+      // SKipBo will be placed
+      expect(player.hand.cards).toEqual([Card.One, Card.Two, Card.Three, Card.Four]);
+    });
+
+    it('can place a specific hand card', () => {
+      // [Card.SkipBo, Card.One, Card.Two, Card.Three, Card.Four]
+      player.fillHand();
+      player.placeHandCard(Card.One);
+
+      expect(player.hand.cards).toEqual([Card.SkipBo, Card.Two, Card.Three, Card.Four]);
+    });
+
+    it('Error when you have no hand cards', () => {
+      // [Card.SkipBo, Card.One, Card.Two, Card.Three, Card.Four]
+      // player.fillHand();
+      expect(() => {
+        player.placeHandCard(Card.One);
+      }).toThrowError('You have no hand cards left');
+    });
+
+    it('Error when you try to automatically place a card in a specified building pile', () => {
+      // [Card.SkipBo, Card.One, Card.Two, Card.Three, Card.Four]
+
+      player.fillHand();
+      const firstPile = game.buildingGroup.getPiles()[0];
+
+      expect(() => {
+        player.placeHandCard(null, firstPile);
+      }).toThrowError(`You can't specify a target pile and not give a card to place`);
+    });
+
+    it('Error when you nothing can be placed', () => {
+      game = new Game([Card.Twelve, Card.Twelve, Card.Twelve, Card.Twelve, Card.Twelve]);
+      player = createPlayer('Player 1', game);
+
+      player.fillHand();
+      const firstPile = game.buildingGroup.getPiles()[0];
+
+      expect(() => {
+        player.placeHandCard();
+      }).toThrowError(`No card in your hand can be placed in the building group`);
+    });
+
+    // it('is complete when no stock cars are left', () => {
+    //   player.addStockCard(Card.Twelve, Card.Eleven, Card.Ten);
+    //   expect(player.complete).toBeFalsy();
+    // });
+  });
+
+  describe('Stock Cards', () => {
+    let player2: Player;
+
+    const testset = [Card.SkipBo, Card.One, Card.Two, Card.Three, Card.Four];
+
+    beforeEach(() => {
+      game = new Game(testset);
+      player = game.createPlayer('Player 1');
+      player2 = game.createPlayer('Player 2');
+    });
+
+    it('can place a stock card', () => {
+      game = new Game(getFullTestDeck());
+      player = game.createPlayer('Player 1');
+      player2 = game.createPlayer('Player 2');
+
+      // disabled shuffling
+      game.deck.shuffle = () => {};
+      game.start();
+
+      // top stock card in the testdeck is Card.SkipBo which can be placed
+      player.placeStockCard();
+
+      // autoPlace of the group will select first pile in this case
+      const firstPile = game.buildingGroup.getPiles()[0];
+
+      const cards = firstPile.getCardValues();
+      expect(cards).toEqual([Card.One]);
+    });
+
+    it('can place a stock card ion a specific pile', () => {
+      game = new Game(getFullTestDeck());
+      player = game.createPlayer('Player 1');
+      player2 = game.createPlayer('Player 2');
+
+      // disabled shuffling
+      game.deck.shuffle = () => {};
+      game.start();
+
+      const firstPile = game.buildingGroup.getPiles()[0];
+
+      // top stock card in the testdeck is Card.SkipBo which can be placed
+      player.placeStockCard(firstPile);
+
+      const cards = firstPile.getCardValues();
+      expect(cards).toEqual([Card.One]);
+    });
+  });
+
+  describe('Place Discard Card', () => {
+    const testset = [Card.SkipBo, Card.One, Card.Two, Card.Three, Card.Four];
+    let firstDiscardPile: BuildingPile;
+    let firstBuildingPile: BuildingPile;
+    let secondDiscardPile: BuildingPile;
+
+    beforeEach(() => {
+      game = new Game(testset);
+      player = game.createPlayer('Player 1');
+
+      firstBuildingPile = game.buildingGroup.getPiles()[0];
+
+      firstDiscardPile = player.discardGroup.getPiles()[0];
+      firstDiscardPile.placeCards(Card.Twelve);
+      firstDiscardPile.placeCards(Card.One);
+
+      secondDiscardPile = player.discardGroup.getPiles()[1];
+      secondDiscardPile.placeCards(Card.Twelve);
+    });
+
+    it('can play a discard card', () => {
+      player.fillHand();
+      const hand = player.hand.cards;
+      player.placeDiscardCard(Card.One);
+    });
+
+    it('can auto play a card to discard', () => {
+      player.placeDiscardCard();
+      expect(firstDiscardPile.getCardValues()).toEqual([Card.Twelve]);
+      expect(firstBuildingPile.getCardValues()).toEqual([Card.One]);
+    });
+
+    it('error when there are no discarded carcds', () => {
+      const player2 = game.createPlayer('Player 1');
+
+      expect(() => {
+        player2.placeDiscardCard(Card.One);
+      }).toThrowError('There are no cards in the discard group');
+    });
+
+    it(`error when card can't be drawn from the discard pile`, () => {
+      expect(() => {
+        player.placeDiscardCard(Card.Four);
+      }).toThrowError(`[Discard Pile] Card 4 can't be drawn from any pile!`);
+    });
+
+    it('error when nothing can be placed', () => {
+      expect(() => {
+        player.placeDiscardCard(Card.Twelve);
+      }).toThrowError(`[Discard Pile] Card 12 can't be placed!`);
+    });
   });
 });
-
-// import { Player, HAND_CARD_COUNT } from './player';
-// import { Game } from './game';
-// import { Card } from './card';
-// import { getFullTestDeck } from './testdeck';
-
-// let player1: Player;
-// let player2: Player;
-// let defaultGame: Game;
-
-// const createPlayer = (name, game = null) => {
-//   return new Player(name, game);
-// };
-
-// beforeEach(() => {
-//   defaultGame = new Game(getFullTestDeck());
-//   player1 = createPlayer('Player 1', defaultGame);
-//   player2 = createPlayer('Player 2', defaultGame);
-// });
-
-// it('fills up hand from deck', () => {
-//   player1.fillHand();
-
-//   expect(player1.getHandCards()).toEqual(
-//     expect.arrayContaining([Card.Five, Card.Ten, Card.SkipBo, Card.Ten, Card.Ten])
-//   );
-// });
-
-// it('handIsEmpty return true when empty', () => {
-//   expect(player1.handIsEmpty()).toBeTruthy();
-//   player1.fillHand();
-//   expect(player1.handIsEmpty()).toBeFalsy();
-// });
-
-// it('trigger deck reset when deck is not full enough', () => {
-//   const game = new Game([Card.One]);
-//   game.completedDeck = [Card.One, Card.One, Card.One, Card.One, Card.Four];
-
-//   const testplayer = createPlayer('Testplayer', game);
-
-//   testplayer.fillHand();
-
-//   expect(testplayer.getHandCards()).toHaveLength(5);
-// });
-
-// it('fills up only difference', () => {
-//   player1.fillHand();
-
-//   player1.drawHandCard(Card.SkipBo);
-//   player1.drawHandCard(Card.Five);
-
-//   expect(player1.getHandCards()).toHaveLength(3);
-
-//   player1.fillHand();
-
-//   expect(player1.getHandCards()).toHaveLength(HAND_CARD_COUNT);
-//   expect(player1.getHandCards()).toEqual(
-//     expect.arrayContaining([Card.Ten, Card.Ten, Card.Ten, Card.Twelve, Card.SkipBo])
-//   );
-// });
-
-// it('remove card from hand', () => {
-//   const cardOnHand = Card.Ten;
-
-//   player1.fillHand();
-//   const handCardsBefore = player1.getHandCards();
-
-//   player1.drawHandCard(cardOnHand);
-
-//   const handCardsAfter = player1.getHandCards();
-
-//   expect(handCardsBefore).toHaveLength(HAND_CARD_COUNT);
-//   expect(handCardsAfter).toHaveLength(HAND_CARD_COUNT - 1);
-// });
-
-// it('get stock cards', () => {
-//   player1.addStockCard(Card.One, Card.Two, Card.Three);
-//   const stockCards = player1.getStockCards();
-//   expect(stockCards).toHaveLength(3);
-// });
-
-// it('draw stock card', () => {
-//   const player1 = new Player('Player', defaultGame);
-//   player1.addStockCard(Card.Twelve, Card.Eleven, Card.Ten);
-
-//   const card = player1.drawStockCard();
-//   expect(card).toBe(Card.Ten);
-// });
-
-// it('get stock card', () => {
-//   player1.addStockCard(Card.One, Card.Two, Card.Three);
-//   expect(player1.currentStockCard).toBe(Card.Three);
-// });
-
-// it('can discard a hand card', () => {
-//   player1.fillHand();
-
-//   const handCardsBefore = player1.getHandCards();
-//   player1.discardHandCard();
-
-//   const handCardsAfter = player1.getHandCards();
-//   expect(handCardsBefore.length - 1).toBe(handCardsAfter.length);
-// });
-
-// it('is complete when no stock cars are left', () => {
-//   player1.addStockCard(Card.Twelve, Card.Eleven, Card.Ten);
-//   expect(player1.complete).toBeFalsy();
-// });
-
-// it('is complete when no stock cards are left', () => {
-//   const player = createPlayer('Test Player');
-
-//   expect(player.complete).toBeTruthy();
-// });

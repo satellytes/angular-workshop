@@ -110,6 +110,8 @@ export class PileGroup<T extends AbstractPile> {
 
   drawCard(card: Card) {
     const candidates = this.getDrawCandidates(card);
+    assert(candidates.length > 0, `Card ${card} can't be drawn`);
+
     return candidates[0].drawCards(card);
   }
 

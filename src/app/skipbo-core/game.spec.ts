@@ -37,7 +37,14 @@ describe('Game', () => {
       expect(game.start).toBeTruthy();
     });
 
-    it('start shuffles deck', () => {
+    it('throws error if started twic', () => {
+      game.start();
+      expect(() => {
+        game.start();
+      }).toThrowError();
+    });
+
+    xit('start shuffles deck', () => {
       const shuffleSpy = spyOn(game.deck, 'shuffle');
       game.start();
 
@@ -122,34 +129,42 @@ describe('Game', () => {
     });
   });
 
-  xdescribe('Next Turn', () => {
+  describe('Player Turns', () => {
     let player1: Player;
     let player2: Player;
 
     beforeEach(() => {
       player1 = game.createPlayer('Player1');
       player2 = game.createPlayer('Player2');
+      game.start();
+    });
+
+    it('throws error for current player if not started', () => {
+      game = new Game();
+      expect(() => game.currentPlayer).toThrowError('Game did not start yet');
     });
 
     it('returns a player', () => {
-      const player = game.nextPlayer();
-      expect(player).toBeInstanceOf(Player);
+      expect(game.currentPlayer instanceof Player).toBeTruthy();
     });
 
-    it('makes Player 1 current player on the first call', () => {
-      game.nextPlayer();
-      expect(game.currentPlayer).toEqual(player1);
-    });
-
-    it('return following player and returns to current', () => {
-      game.nextPlayer(); // Player 1
-      expect(game.currentPlayer).toEqual(player1);
+    it('returns next player', () => {
+      expect(game.currentPlayer).toBe(player1);
 
       game.nextPlayer(); // Player 2
-      expect(game.currentPlayer).toEqual(player2);
+      expect(game.currentPlayer).toBe(player2);
 
       game.nextPlayer(); // Player 1
-      expect(game.currentPlayer).toEqual(player1);
+      expect(game.currentPlayer).toBe(player1);
+    });
+
+    it('has a turn counter', () => {
+      game.nextPlayer();
+      game.nextPlayer();
+      game.nextPlayer();
+      game.nextPlayer();
+
+      expect(game.turnId).toBe(4);
     });
   });
 });

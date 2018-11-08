@@ -125,4 +125,8 @@ export abstract class AbstractPile {
 
     return card;
   }
+
+  [Symbol.iterator]() {
+    return this._cardList.values();
+  }
 }

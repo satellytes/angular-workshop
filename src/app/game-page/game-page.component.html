@@ -4,6 +4,7 @@
 
 <skipbo-pile [cards]="cards"></skipbo-pile>
 <button (click)="add()">add</button>
+<div>CurrentPlayer:{{ game.currentPlayer }} <button (click)="game.nextPlayer()">next</button></div>
 
 <h2>Board</h2>
 <h3>Building Piles</h3>
@@ -21,12 +22,19 @@
 
 <h2>Player</h2>
 <div *ngFor="let player of players">
-  <h3>Hand Name</h3>
+  <h3>Name</h3>
   {{ player.name }}
+
+  <h3>Actions</h3>
+  <button (click)="player.fillHand()">fillHand</button>
+  <button (click)="player.placeStockCard()">placeStockCard</button>
+  <button (click)="player.placeHandCard()">placeHandCard</button>
+  <button (click)="player.placeDiscardCard()">placeDiscardCard</button>
+  <button (click)="player.discardHandCard()">discard</button>
 
   <h3>Hand Cards</h3>
   Count: {{ player.hand.count }}<br />
-  Cards: {{ player.hand.cards }} <button (click)="player.fillHand()">fillHand</button>
+  {{ player.hand.cards }}
 
   <h3>Stock Cards</h3>
   Count: {{ player.stock.count }}<br />
