@@ -290,12 +290,11 @@ describe('Player', () => {
     });
   });
 
-  fdescribe('Turn', () => {
+  describe('Turn', () => {
     beforeEach(() => {
       game = new Game();
       player = game.createPlayer('Player 1');
     });
-
 
     it('player is not a winner when game never started', () => {
       expect(player.isWinner()).toBe(false);
@@ -311,14 +310,13 @@ describe('Player', () => {
       expect(player.isWinner()).toBe(true);
     });
 
-
     it('notify about winning after placing the last stock card', () => {
       game = new Game(getFullTestDeck());
       // second player so wen can start playing
       player = game.createPlayer('Player 1');
 
       let playerHasWon = false;
-      player.winner.subscribe(() => {
+      player.winnerChange.subscribe(() => {
         playerHasWon = true;
       });
 

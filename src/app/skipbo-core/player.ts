@@ -75,6 +75,8 @@ export class Player {
       const [stockCard] = this.stock.draw();
       this.game.buildingGroup.autoPlace(stockCard);
     }
+
+    this.checkWinner();
   }
 
   get winnerChange() {

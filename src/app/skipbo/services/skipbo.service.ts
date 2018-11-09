@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { Game } from '../skipbo-core/game';
-import { Player } from '../skipbo-core/player';
-import { getFullTestDeck } from '../skipbo-core/testdeck';
+import { Game } from '../../skipbo-core/game';
+import { Player } from '../../skipbo-core/player';
+import { getFullTestDeck } from '../../skipbo-core/testdeck';
 
 @Injectable()
 export class SkipBoService {
@@ -25,6 +25,10 @@ export class SkipBoService {
 
   get players(): Player[] {
     return this._game.players;
+  }
+
+  get gameStarted() {
+    return this.game.started;
   }
 
   start() {

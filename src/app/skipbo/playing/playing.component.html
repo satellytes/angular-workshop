@@ -1,13 +1,12 @@
-<div class='board'>
+<div class="board">
   <h1>Game</h1>
   <div>Deck has {{ game.deck.count }} cards. Next card to draw: {{ game.deck.peek() }}</div>
 
   <h3>Building Piles</h3>
-  <skipbo-pilegroup *ngIf="game.started"  [group]="game.buildingGroup"></skipbo-pilegroup>
+  <skipbo-pilegroup *ngIf="game.started" [group]="game.buildingGroup"></skipbo-pilegroup>
 </div>
 
-<div class='player'>
+<div class="player">
   <button (click)="game.nextPlayer()">next</button>
   <skipbo-player *ngIf="game.started" [player]="game.currentPlayer"></skipbo-player>
 </div>
-

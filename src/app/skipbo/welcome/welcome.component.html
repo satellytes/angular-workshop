@@ -4,6 +4,7 @@
   tempora porro sapiente ratione veritatis similique suscipit cum deleniti deserunt necessitatibus fugiat, molestiae
   numquam nemo fugit.
 </p>
+<button mat-raised-button routerLink="/skipbo/instructions">Instructions</button>
 
 <h2>Players available</h2>
 <mat-list>
@@ -15,4 +16,4 @@
   <button mat-raised-button [disabled]="players.length >= 6" (click)="addPlayer()">Add New Player</button>
 </div>
 
-<button mat-raised-button [disabled]="players.length < 2" color="accent" routerLink="/game">Start</button>
+<button mat-raised-button [disabled]="players.length < 2" color="accent" routerLink="/skipbo/playing">Start</button>

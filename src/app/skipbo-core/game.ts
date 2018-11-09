@@ -21,7 +21,7 @@ export class Game {
   private _players: DoublyLinkedList<Player> = new DoublyLinkedList();
 
   private _deck: Deck;
-  private _started: Boolean = false;
+  private _started: boolean = false;
 
   private _currentPlayer: DoublyLinkedListNode<Player>;
   private _turnCounter = 0;
@@ -36,6 +36,7 @@ export class Game {
   get completedCards(): Card[] {
     return [...this._completedCards];
   }
+
   get started() {
     return this._started;
   }
@@ -84,9 +85,7 @@ export class Game {
       console.log('game over, winner found');
     });
 
-    this.winnerChanges
-      .pipe(first())
-      .subscribe(this._gameOver);
+    this.winnerChanges.pipe(first()).subscribe(this._gameOver);
 
     // of(this.players)
     // .pipe(
@@ -104,8 +103,6 @@ export class Game {
     //   // this.gameOver();
     // });
   }
-
-
 
   start() {
     logger.info('Start Game');
